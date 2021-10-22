@@ -23,6 +23,7 @@ public class DashboardController implements Initializable {
     @FXML public void productPage(ActionEvent event) { loadPage("product");}
     @FXML public void posPage(ActionEvent event) { loadPage("pos"); }
     @FXML public void productPackagePage(ActionEvent event) { loadPage("productPackage"); }
+    @FXML public void inventoryPage(ActionEvent event){loadPage("inventory");}
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

@@ -6,7 +6,6 @@ import com.khoders.pos.services.ProductService;
 import com.khoders.pos.utils.SystemUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -21,8 +20,6 @@ import java.util.ResourceBundle;
 
 public class ProductController implements Initializable {
     @FXML private TextField txtProductNameField;
-    @FXML private Button buttonSaveProduct;
-    @FXML private Button buttonClear;
     @FXML private ComboBox<ProductType> comboBoxProductType;
     @FXML private TableView<Product> tableProduct;
     @FXML private TableColumn<Product, String> colProductId;
@@ -34,13 +31,12 @@ public class ProductController implements Initializable {
     ProductService productService = new ProductService();
     PreparedStatement preparedStatement=null;
 
-    @FXML public void saveProduct(ActionEvent event) {
+    @FXML public void saveProduct() {
         Product product = new Product(null,null,
                 txtProductNameField.getText(),
                 comboBoxProductType.getSelectionModel().getSelectedItem().getId()
         );
         preparedStatement = productService.saveProduct(product);
-
         if(preparedStatement != null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setHeaderText(null);
@@ -53,13 +49,20 @@ public class ProductController implements Initializable {
                     comboBoxProductType.getSelectionModel().getSelectedItem().getProductTypeName()
             ));
         }
+        else
+        {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setContentText("Oops! could not save product, please try again.");
+            alert.showAndWait();
+        }
     }
 
-    @FXML public void clearProduct(ActionEvent event) {
+    @FXML public void clearProduct() {
         txtProductNameField.clear();
     }
 
-    @FXML public void AddProductType(ActionEvent event) {
+    @FXML public void AddProductType() {
         TextInputDialog textInputDialog = new TextInputDialog();
         textInputDialog.setTitle("Product Type");
         textInputDialog.setContentText("Enter product type");
@@ -68,19 +71,29 @@ public class ProductController implements Initializable {
         if(optional.isPresent())
         {
             preparedStatement = productService.saveProductType(optional.get());
-            if(preparedStatement != null){
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText(null);
-                alert.setContentText("Product Type saved!");
-                alert.showAndWait();
+            try {
+                if(preparedStatement != null){
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Product Type saved!");
+                    alert.showAndWait();
+                loadProductType();
+                }
+                else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Oops! could not save product type, please try again.");
+                    alert.showAndWait();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            loadProductType();
         }
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setTableData();
+        loadTableData();
         loadProductType();
     }
 
@@ -88,15 +101,10 @@ public class ProductController implements Initializable {
         comboBoxProductType.getItems().clear();
         try
         {
-            ResultSet resultSet = productService.productTypeList();
-            while (resultSet.next())
-            {
-                String id = resultSet.getString("id");
-                String productType = resultSet.getString("product_type_name");
-                productTypeList.add(new ProductType(id, productType));
-            }
+            productTypeList = productService.productTypeList();
+
             comboBoxProductType.setItems(productTypeList);
-            comboBoxProductType.setConverter(new StringConverter<ProductType>() {
+            comboBoxProductType.setConverter(new StringConverter<>() {
 
                 @Override
                 public String toString(ProductType productType) {
@@ -116,7 +124,7 @@ public class ProductController implements Initializable {
         }
     }
 
-    private void setTableData() {
+    private void loadTableData() {
         fetchProducts();
 
         colProductId.setCellValueFactory(new PropertyValueFactory<>("productId"));
@@ -126,19 +134,7 @@ public class ProductController implements Initializable {
 
     private void fetchProducts() {
         productList.clear();
-        try{
-            ResultSet resultSet = productService.getProductList();
-            while (resultSet.next()){
-                productList.add(new Product(
-                        null,
-                        resultSet.getString("product_id"),
-                        resultSet.getString("product_name"),
-                        resultSet.getString("product_type_name")
-                ));
-                tableProduct.setItems(productList);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        productList = productService.getProductList();
+        tableProduct.setItems(productList);
     }
 }

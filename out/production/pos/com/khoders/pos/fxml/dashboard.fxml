@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.khoders.pos.controller.DashboardController">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="492.0" prefWidth="755.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.khoders.pos.controller.DashboardController">
    <children>
       <MenuBar>
         <menus>
@@ -23,6 +23,7 @@
                   <MenuItem fx:id="posMenu" mnemonicParsing="false" onAction="#posPage" text="POS" />
                   <MenuItem fx:id="productMenu" mnemonicParsing="false" onAction="#productPage" text="Product" />
                   <MenuItem fx:id="productPackageMenu" mnemonicParsing="false" onAction="#productPackagePage" text="Product package" />
+                  <MenuItem fx:id="inventoryMenu" mnemonicParsing="false" onAction="#inventoryPage" text="Inventory" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

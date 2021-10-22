@@ -23,6 +23,7 @@
                   <MenuItem fx:id="posMenu" mnemonicParsing="false" onAction="#posPage" text="POS" />
                   <MenuItem fx:id="productMenu" mnemonicParsing="false" onAction="#productPage" text="Product" />
                   <MenuItem fx:id="productPackageMenu" mnemonicParsing="false" onAction="#productPackagePage" text="Product package" />
+                  <MenuItem fx:id="inventoryMenu" mnemonicParsing="false" onAction="#inventoryPage" text="Inventory" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">

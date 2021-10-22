@@ -14,9 +14,8 @@ public class DateUtils {
             date = new Date();
             Instant currentInstant = date.toInstant();
             ZonedDateTime zonedDateTime = currentInstant.atZone(ZoneId.systemDefault());
-            LocalDate localDate  = zonedDateTime.toLocalDate();
 
-            return localDate;
+            return zonedDateTime.toLocalDate();
 
         } catch (Exception e)
         {
@@ -52,7 +51,6 @@ public class DateUtils {
         {
             e.printStackTrace();
         }
-
         return null;
     }
     public static LocalDate parseLocalDate(String str, String pattern)
@@ -93,5 +91,10 @@ public class DateUtils {
     {
         long millis=System.currentTimeMillis();
         return new java.sql.Date(millis);
+    }
+
+    public static java.sql.Date localDateToSqlDate(LocalDate localDate)
+    {
+        return java.sql.Date.valueOf(localDate);
     }
 }

@@ -26,7 +26,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$USER_HOME$/Downloads/Compressed/jar_files/mysql-connector-java-8.0.20.jar!/" />
+          <root url="jar://$MODULE_DIR$/../mysql-connector-java-8.0.20.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

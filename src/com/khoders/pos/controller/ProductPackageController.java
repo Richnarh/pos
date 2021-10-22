@@ -21,7 +21,6 @@ import java.util.ResourceBundle;
 
 public class ProductPackageController implements Initializable {
     @FXML private TextField txtPackagePriceField;
-    @FXML private TextField txtSelectProductTextField;
     @FXML private TextField txtPackageFactorField;
     @FXML private ComboBox<UnitMeasurement> comboBoxUnitMeasurement;
     @FXML private ComboBox<Product> comboBoxProduct;
@@ -72,7 +71,6 @@ public class ProductPackageController implements Initializable {
     public void resetPackage(ActionEvent event) {
         txtPackageFactorField.clear();
         txtPackagePriceField.clear();
-        txtSelectProductTextField.clear();
     }
 
     @FXML
@@ -85,14 +83,24 @@ public class ProductPackageController implements Initializable {
         if(optional.isPresent())
         {
             preparedStatement = packageService.saveUnits(optional.get());
-            if(preparedStatement != null)
-            {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setHeaderText(null);
-                alert.setContentText("Units saved successfully!");
-                alert.showAndWait();
+            try {
+                if(preparedStatement != null)
+                {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Units saved successfully!");
+                    alert.showAndWait();
+                    loadUnitsMeasurement();
+                }
+                else {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setHeaderText(null);
+                    alert.setContentText("Oops! could not save units measurement, please try again.");
+                    alert.showAndWait();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
-            loadUnitsMeasurement();
         }
     }
 
@@ -100,78 +108,44 @@ public class ProductPackageController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         loadProducts();
         loadUnitsMeasurement();
-
         loadTableData();
     }
 
     private void loadProducts() {
         comboBoxProduct.getItems().clear();
+        productList = packageService.productList();
+        comboBoxProduct.setItems(productList);
+        comboBoxProduct.setConverter(new StringConverter<Product>() {
 
-        try
-        {
-            ResultSet resultSet = packageService.productList();
-            while (resultSet.next())
-            {
-                String id = resultSet.getString("id");
-                String productName = resultSet.getString("product_name");
-                productList.add(new Product(id,null, productName,null));
+            @Override
+            public String toString(Product product) {
+                return product.getProductName();
             }
-            comboBoxProduct.setItems(productList);
-            comboBoxProduct.setConverter(new StringConverter<Product>() {
 
-                @Override
-                public String toString(Product product) {
-                    return product.getProductName();
-                }
-
-                @Override
-                public Product fromString(String string) {
-                    return comboBoxProduct.getItems().stream().filter(item ->
-                            item.getProductName().equals(string)).findFirst().orElse(null);
-                }
-            });
-
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+            @Override
+            public Product fromString(String string) {
+                return comboBoxProduct.getItems().stream().filter(item ->
+                        item.getProductName().equals(string)).findFirst().orElse(null);
+            }
+        });
     }
     private void loadUnitsMeasurement() {
         comboBoxUnitMeasurement.getItems().clear();
+        unitMeasurementList = packageService.unitMeasurementList();
+        comboBoxUnitMeasurement.setItems(unitMeasurementList);
+        comboBoxUnitMeasurement.setConverter(new StringConverter<UnitMeasurement>() {
 
-        try
-        {
-            ResultSet resultSet = packageService.unitMeasurementList();
-            while (resultSet.next())
-            {
-                String id = resultSet.getString("id");
-                String units = resultSet.getString("units");
-                unitMeasurementList.add(new UnitMeasurement(id,units));
+            @Override
+            public String toString(UnitMeasurement measurement) {
+                return measurement.getUnits();
             }
-            comboBoxUnitMeasurement.setItems(unitMeasurementList);
-            comboBoxUnitMeasurement.setConverter(new StringConverter<UnitMeasurement>() {
 
-                @Override
-                public String toString(UnitMeasurement measurement) {
-                    return measurement.getUnits();
-                }
-
-                @Override
-                public UnitMeasurement fromString(String string) {
-                    return comboBoxUnitMeasurement.getItems().stream().filter(item ->
-                            item.getUnits().equals(string)).findFirst().orElse(null);
-                }
-            });
-
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void selectedProductAction(ActionEvent event) {
-        txtSelectProductTextField.setText(comboBoxProduct.getValue().getProductName());
+            @Override
+            public UnitMeasurement fromString(String string) {
+                return comboBoxUnitMeasurement.getItems().stream().filter(item ->
+                        item.getUnits().equals(string)).findFirst().orElse(null);
+            }
+        });
     }
 
     private void loadTableData() {
@@ -185,20 +159,10 @@ public class ProductPackageController implements Initializable {
 
     private void fetchProductPackages() {
         productPackageList.clear();
-        try{
-            ResultSet resultSet = packageService.getProductPackageList();
-            while (resultSet.next()){
-                productPackageList.add(new ProductPackage(
-                        null,
-                        resultSet.getString("product_name"),
-                        resultSet.getString("units"),
-                        resultSet.getString("package_factor"),
-                        resultSet.getString("package_price")
-                ));
-                tableProductPackage.setItems(productPackageList);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        productPackageList = packageService.getProductPackageList();
+        tableProductPackage.setItems(productPackageList);
+    }
+
+    public void selectedProductAction(ActionEvent event) {
     }
 }

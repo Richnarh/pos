@@ -1,9 +1,13 @@
 package com.khoders.pos.services;
 
+import com.khoders.pos.dto.Product;
 import com.khoders.pos.dto.ProductPackage;
+import com.khoders.pos.dto.UnitMeasurement;
 import com.khoders.pos.utils.DateUtils;
 import com.khoders.pos.utils.DbUtils;
 import com.khoders.pos.utils.SystemUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -26,39 +30,51 @@ public class ProductPackageService {
             preparedStatement.setString(2, value);
             preparedStatement.setDate(3, DateUtils.sqlDate());
             preparedStatement.execute();
-
         }catch (Exception e){
             e.printStackTrace();
         }
         return preparedStatement;
     }
 
-    public ResultSet productList()
+    public ObservableList<Product> productList()
     {
+        ObservableList<Product> products = FXCollections.observableArrayList();
         try
         {
             preparedStatement = conn.prepareStatement(DbUtils.selectQry("product"));
             resultSet = preparedStatement.executeQuery();
+            while (resultSet.next())
+            {
+                String id = resultSet.getString("id");
+                String productName = resultSet.getString("product_name");
+                products.add(new Product(id,null, productName,null));
+            }
 
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        return resultSet;
+        return products;
     }
 
-    public ResultSet unitMeasurementList()
+    public ObservableList<UnitMeasurement> unitMeasurementList()
     {
+        ObservableList<UnitMeasurement> observableList = FXCollections.observableArrayList();
         try
         {
             preparedStatement = conn.prepareStatement(DbUtils.selectQry("unit_measurement"));
             resultSet = preparedStatement.executeQuery();
-
+            while (resultSet.next())
+            {
+                String id = resultSet.getString("id");
+                String units = resultSet.getString("units");
+                observableList.add(new UnitMeasurement(id,units));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        return resultSet;
+        return observableList;
     }
 
     public PreparedStatement saveProductPackage(ProductPackage productPackage) {
@@ -79,13 +95,23 @@ public class ProductPackageService {
         return preparedStatement;
     }
 
-    public ResultSet getProductPackageList(){
+    public ObservableList<ProductPackage> getProductPackageList(){
+        ObservableList<ProductPackage> productPackageObservableList = FXCollections.observableArrayList();
         try {
             preparedStatement = conn.prepareStatement(DbUtils.SELECT_PRODUCT_PACKAGE_QRY);
             resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                productPackageObservableList.add(new ProductPackage(
+                        null,
+                        resultSet.getString("product_name"),
+                        resultSet.getString("units"),
+                        resultSet.getString("package_factor"),
+                        resultSet.getString("package_price")
+                ));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return resultSet;
+        return productPackageObservableList;
     }
 }

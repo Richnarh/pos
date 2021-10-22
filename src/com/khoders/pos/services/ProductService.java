@@ -1,9 +1,12 @@
 package com.khoders.pos.services;
 
 import com.khoders.pos.dto.Product;
+import com.khoders.pos.dto.ProductType;
 import com.khoders.pos.utils.DateUtils;
 import com.khoders.pos.utils.DbUtils;
 import com.khoders.pos.utils.SystemUtils;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,18 +21,24 @@ public class ProductService {
         conn = DbUtils.init();
     }
 
-    public ResultSet productTypeList()
+    public ObservableList<ProductType> productTypeList()
     {
+        ObservableList<ProductType> productTypes = FXCollections.observableArrayList();
         try
         {
             preparedStatement = conn.prepareStatement(DbUtils.selectQry("product_type"));
             resultSet = preparedStatement.executeQuery();
-
+            while (resultSet.next())
+            {
+                String id = resultSet.getString("id");
+                String productType = resultSet.getString("product_type_name");
+                productTypes.add(new ProductType(id, productType));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        return resultSet;
+        return productTypes;
     }
 
     public PreparedStatement saveProductType(String value)
@@ -41,7 +50,6 @@ public class ProductService {
             preparedStatement.setString(2, value);
             preparedStatement.setDate(3, DateUtils.sqlDate());
             preparedStatement.execute();
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -66,13 +74,22 @@ public class ProductService {
         return preparedStatement;
     }
 
-    public ResultSet getProductList(){
+    public ObservableList<Product> getProductList(){
+        ObservableList<Product> observableList = FXCollections.observableArrayList();
         try {
             preparedStatement = conn.prepareStatement(DbUtils.SELECT_PRODUCT_QRY);
             resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                observableList.add(new Product(
+                        null,
+                        resultSet.getString("product_id"),
+                        resultSet.getString("product_name"),
+                        resultSet.getString("product_type_name")
+                ));
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
-        return resultSet;
+        return observableList;
     }
 }
